@@ -1,6 +1,7 @@
 package org.example.youtubeaisummary.controller;
 
 import org.example.youtubeaisummary.service.SubtitleService;
+import org.example.youtubeaisummary.vo.YoutubeVideo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,7 +18,7 @@ public class SubtitleController {
     }
 
     @GetMapping(value = "/subs")
-    public String getSubtitle(@RequestParam String url) {
-        return subtitleService.fetchSubs(url);
+    public String getSubtitle(@RequestParam YoutubeVideo video) {
+        return subtitleService.fetchSubs(video);
     }
 }

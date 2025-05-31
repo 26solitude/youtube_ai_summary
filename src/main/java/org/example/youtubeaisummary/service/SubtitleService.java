@@ -2,24 +2,23 @@ package org.example.youtubeaisummary.service;
 
 
 import io.github.thoroldvix.api.*;
-import io.github.thoroldvix.internal.TranscriptApiFactory;
+import org.example.youtubeaisummary.vo.YoutubeVideo;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
 
 @Service
 public class SubtitleService {
+    private final YoutubeTranscriptApi api;
 
-    private static final Pattern ID_PATTERN =
-            Pattern.compile("(?:youtu\\.be/|v=)([A-Za-z0-9_-]{11})");
-    private final YoutubeTranscriptApi api = TranscriptApiFactory.createDefault();
+    public SubtitleService(YoutubeTranscriptApi api) {
+        this.api = api;
+    }
 
-    public String fetchSubs(String url) {
-        String videoId = extractVideoId(url);
+    public String fetchSubs(YoutubeVideo video) {
+        String videoId = video.getVideoId();
 
         try {
             TranscriptList transcriptList = api.listTranscripts(videoId);
@@ -40,13 +39,5 @@ public class SubtitleService {
         } catch (TranscriptRetrievalException e) {
             throw new RuntimeException("자막을 가져오는 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
-    }
-
-    private String extractVideoId(String url) {
-        Matcher m = ID_PATTERN.matcher(url);
-        if (!m.find()) {
-            throw new IllegalArgumentException("잘못된 YouTube URL 형식입니다: " + url);
-        }
-        return m.group(1);
     }
 }
