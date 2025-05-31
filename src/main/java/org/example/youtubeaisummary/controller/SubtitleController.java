@@ -1,24 +1,41 @@
 package org.example.youtubeaisummary.controller;
 
+import org.example.youtubeaisummary.dto.JobResponseDto;
+import org.example.youtubeaisummary.dto.JobStatusDto;
+import org.example.youtubeaisummary.repository.InMemoryJobRepository;
 import org.example.youtubeaisummary.service.SubtitleService;
 import org.example.youtubeaisummary.vo.YoutubeVideo;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/jobs")
 public class SubtitleController {
 
     private final SubtitleService subtitleService;
+    private final InMemoryJobRepository jobRepository;
 
-    public SubtitleController(SubtitleService subtitleService) {
+    public SubtitleController(SubtitleService subtitleService, InMemoryJobRepository jobRepository) {
         this.subtitleService = subtitleService;
+        this.jobRepository = jobRepository;
     }
 
-    @GetMapping(value = "/subs")
-    public String getSubtitle(@RequestParam("url") YoutubeVideo video) {
-        return subtitleService.fetchSubs(video);
+    @PostMapping("/subtitles")
+    public ResponseEntity<JobResponseDto> requestSubtitleProcessing(@RequestParam("url") YoutubeVideo video) {
+        String jobId = UUID.randomUUID().toString();
+        jobRepository.createJob(jobId);
+        subtitleService.fetchSubs(jobId, video);
+        return new ResponseEntity<>(new JobResponseDto(jobId), HttpStatus.ACCEPTED);
     }
+
+    @GetMapping("/subtitles/status/{jobId}")
+    public ResponseEntity<JobStatusDto> getJobStatus(@PathVariable String jobId) {
+        return jobRepository.getJobStatus(jobId)
+                .map(jobStatus -> new ResponseEntity<>(jobStatus, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
 }
