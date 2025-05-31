@@ -18,7 +18,7 @@ public class SubtitleController {
     }
 
     @GetMapping(value = "/subs")
-    public String getSubtitle(@RequestParam YoutubeVideo video) {
+    public String getSubtitle(@RequestParam("url") YoutubeVideo video) {
         return subtitleService.fetchSubs(video);
     }
 }
