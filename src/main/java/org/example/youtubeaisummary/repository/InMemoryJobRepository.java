@@ -26,6 +26,4 @@ public class InMemoryJobRepository {
     public void updateJob(String jobId, JobStatusDto.JobStatus status, String result) {
         jobs.put(jobId, new JobStatusDto(jobId, status, result));
     }
-
-
 }
