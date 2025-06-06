@@ -65,11 +65,17 @@ public class SseNotificationService {
     private String determineEventNameFromStatus(JobStatusDto.JobStatus status) {
         return switch (status) {
             case PENDING -> "pending";
-            case PROCESSING -> "progress";
+            case SUBTITLE_EXTRACTING, SUBTITLE_EXTRACTION_COMPLETED, AI_SUMMARIZING -> "progress";
             case COMPLETED -> "complete";
             case FAILED -> "error";
             default -> "statusUpdate";
         };
+    }
+
+    public void notifyJobStatus(JobStatusDto jobStatusDto) {
+        String eventName = determineEventNameFromStatus(jobStatusDto.status());
+
+        sendEvent(jobStatusDto.jobId(), eventName, jobStatusDto);
     }
 
     public void sendEvent(String jobId, String eventName, Object data) {

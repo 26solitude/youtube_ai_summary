@@ -38,17 +38,17 @@ public class SubtitleService {
                 // ==============================================================
                 // 테스트를 위한 임시 지연 추가 (10초)
                 // 실제 운영 코드에서는 이 부분을 반드시 제거!
-                try {
-                    logger.warn("작업 ID: {}: 테스트를 위한 임시 지연 시작 (10초)...", jobId);
-                    Thread.sleep(10000); // 10초 대기
-                    logger.warn("작업 ID: {}: 테스트를 위한 임시 지연 종료.", jobId);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    logger.error("작업 ID: {}: 임시 지연 중 인터럽트 발생", jobId, e);
-                }
+//                try {
+//                    logger.warn("작업 ID: {}: 테스트를 위한 임시 지연 시작 (10초)...", jobId);
+//                    Thread.sleep(10000); // 10초 대기
+//                    logger.warn("작업 ID: {}: 테스트를 위한 임시 지연 종료.", jobId);
+//                } catch (InterruptedException e) {
+//                    Thread.currentThread().interrupt();
+//                    logger.error("작업 ID: {}: 임시 지연 중 인터럽트 발생", jobId, e);
+//                }
                 // ==============================================================
 
-                updateJobProgress(jobId, "자막 추출을 시작합니다...");
+                updateJobProgress(jobId, JobStatusDto.JobStatus.SUBTITLE_EXTRACTING, "자막 추출을 시작합니다...");
 
                 // --- 1. 자막 목록 가져오기 ---
                 TranscriptList transcriptList;
@@ -80,8 +80,6 @@ public class SubtitleService {
                     throw new NoSubtitlesFoundException("이 영상에는 자동 생성된 자막이 없습니다.");
                 }
 
-                updateJobProgress(jobId, "자막 정보를 가져왔습니다. 내용 추출 중...");
-
                 // --- 3. 자막 내용 가져오기 ---
                 TranscriptContent transcriptContent;
                 try {
@@ -102,9 +100,7 @@ public class SubtitleService {
                 String result = textFormatter.format(transcriptContent);
 
                 // --- 4. 결과 포맷팅 및 최종 처리 ---
-                jobRepository.updateJob(jobId, JobStatusDto.JobStatus.COMPLETED, result);
-                sseNotificationService.sendEvent(jobId, "complete", new JobStatusDto(jobId, JobStatusDto.JobStatus.COMPLETED, result));
-                sseNotificationService.completeStream(jobId); // SSE 스트림 정상 종료
+                updateJobProgress(jobId, JobStatusDto.JobStatus.SUBTITLE_EXTRACTION_COMPLETED, result);
                 return result;
 
             } catch (NoSubtitlesFoundException | YoutubeApiException e) {
@@ -120,14 +116,13 @@ public class SubtitleService {
         });
     }
 
-    private void updateJobProgress(String jobId, String message) {
-        jobRepository.updateJob(jobId, JobStatusDto.JobStatus.PROCESSING, message);
-        sseNotificationService.sendEvent(jobId, "progress", new JobStatusDto(jobId, JobStatusDto.JobStatus.PROCESSING, message));
+    private void updateJobProgress(String jobId, JobStatusDto.JobStatus status, String message) {
+        jobRepository.updateJob(jobId, status, message);
+        sseNotificationService.notifyJobStatus(new JobStatusDto(jobId, status, message));
     }
 
-    private void handleFailure(String jobId, String userMessage, Exception exception) {
-        jobRepository.updateJob(jobId, JobStatusDto.JobStatus.FAILED, userMessage);
-        sseNotificationService.sendEvent(jobId, "error", new JobStatusDto(jobId, JobStatusDto.JobStatus.FAILED, userMessage));
+    private void handleFailure(String jobId, String message, Exception exception) {
+        updateJobProgress(jobId, JobStatusDto.JobStatus.FAILED, message);;
         sseNotificationService.errorStream(jobId, exception);
     }
 }
