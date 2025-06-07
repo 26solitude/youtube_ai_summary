@@ -4,9 +4,11 @@ import org.example.youtubeaisummary.vo.YoutubeVideo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -17,9 +19,17 @@ public class OrchestrationService {
     private final SubtitleService subtitleService;
     private final Executor subtitleTaskExecutor;
 
-    public OrchestrationService(SubtitleService subtitleService, @Qualifier("subtitleTaskExecutor") Executor subtitleTaskExecutor) {
-        this.subtitleService = subtitleService;
+    public OrchestrationService(
+            Map<String, SubtitleService> subtitleServiceImplementations,
+            @Value("${app.subtitle.provider}") String subtitleProvider,
+            @Qualifier("subtitleTaskExecutor") Executor subtitleTaskExecutor) {
+
+        this.subtitleService = subtitleServiceImplementations.get(subtitleProvider);
+        if (this.subtitleService == null) {
+            throw new IllegalArgumentException("지원하지 않는 자막 제공자(provider)입니다: " + subtitleProvider);
+        }
         this.subtitleTaskExecutor = subtitleTaskExecutor;
+        logger.info("현재 설정된 자막 제공자: {}", subtitleProvider);
     }
 
     @Async("subtitleTaskExecutor")

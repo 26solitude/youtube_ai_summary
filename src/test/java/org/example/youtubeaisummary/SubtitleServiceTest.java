@@ -5,7 +5,7 @@ import org.example.youtubeaisummary.dto.JobStatusDto;
 import org.example.youtubeaisummary.exception.NoSubtitlesFoundException;
 import org.example.youtubeaisummary.repository.InMemoryJobRepository;
 import org.example.youtubeaisummary.service.SseNotificationService;
-import org.example.youtubeaisummary.service.SubtitleService;
+import org.example.youtubeaisummary.service.YoutubeApiSubtitleService;
 import org.example.youtubeaisummary.vo.YoutubeVideo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,7 +37,7 @@ class SubtitleServiceTest {
 
     // @InjectMocks는 @Mock으로 생성된 객체들을 테스트 대상 객체에 자동으로 주입
     @InjectMocks
-    private SubtitleService subtitleService;
+    private YoutubeApiSubtitleService subtitleService;
 
     private YoutubeVideo testVideo;
 
@@ -46,6 +46,8 @@ class SubtitleServiceTest {
         // 모든 테스트 전에 공통으로 필요한 Mock 객체 설정
         testVideo = mock(YoutubeVideo.class);
         when(testVideo.getVideoId()).thenReturn(testVideoId);
+
+        subtitleService.setDependencies(mockJobRepository, mockSseNotificationService);
     }
 
     @Test
