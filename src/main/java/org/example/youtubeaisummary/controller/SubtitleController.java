@@ -23,7 +23,7 @@ public class SubtitleController {
     private final InMemoryJobRepository jobRepository;
     private final SseNotificationService sseNotificationService;
 
-    public SubtitleController(SubtitleService subtitleService, OrchestrationService orchestrationService, InMemoryJobRepository jobRepository, SseNotificationService sseNotificationService) {
+    public SubtitleController(OrchestrationService orchestrationService, InMemoryJobRepository jobRepository, SseNotificationService sseNotificationService) {
         this.orchestrationService = orchestrationService;
         this.jobRepository = jobRepository;
         this.sseNotificationService = sseNotificationService;
