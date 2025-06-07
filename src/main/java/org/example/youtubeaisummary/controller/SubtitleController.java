@@ -5,7 +5,6 @@ import org.example.youtubeaisummary.dto.JobStatusDto;
 import org.example.youtubeaisummary.repository.InMemoryJobRepository;
 import org.example.youtubeaisummary.service.OrchestrationService;
 import org.example.youtubeaisummary.service.SseNotificationService;
-import org.example.youtubeaisummary.service.SubtitleService;
 import org.example.youtubeaisummary.vo.YoutubeVideo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
