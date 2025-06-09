@@ -1,33 +1,28 @@
 package org.example.youtubeaisummary.service;
 
 import org.example.youtubeaisummary.dto.JobStatusDto;
-import org.example.youtubeaisummary.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractSubtitleService implements SubtitleService {
 
-    protected JobRepository jobRepository;
-    protected SseNotificationService sseNotificationService;
+    private JobManager jobManager;
 
     @Autowired
-    public void setDependencies(JobRepository jobRepository, SseNotificationService sseNotificationService) {
-        this.jobRepository = jobRepository;
-        this.sseNotificationService = sseNotificationService;
+    public void setJobManager(JobManager jobManager) {
+        this.jobManager = jobManager;
     }
 
     /**
      * 작업 진행 상태를 업데이트하고 클라이언트에게 알림을 보냅니다.
      */
     protected void updateJobProgress(String jobId, JobStatusDto.JobStatus status, String message) {
-        jobRepository.updateJob(jobId, status, message);
-        sseNotificationService.notifyJobStatus(new JobStatusDto(jobId, status, message));
+        jobManager.updateJobProgress(jobId, status, message);
     }
 
     /**
      * 작업 실패를 처리하고 클라이언트에게 에러를 알립니다.
      */
     protected void handleFailure(String jobId, String message, Exception exception) {
-        updateJobProgress(jobId, JobStatusDto.JobStatus.FAILED, message);
-        sseNotificationService.errorStream(jobId, exception);
+        jobManager.failJob(jobId, message, exception);
     }
 }
