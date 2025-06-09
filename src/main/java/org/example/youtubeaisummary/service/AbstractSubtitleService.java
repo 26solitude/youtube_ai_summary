@@ -1,16 +1,16 @@
 package org.example.youtubeaisummary.service;
 
 import org.example.youtubeaisummary.dto.JobStatusDto;
-import org.example.youtubeaisummary.repository.InMemoryJobRepository;
+import org.example.youtubeaisummary.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractSubtitleService implements SubtitleService {
 
-    protected InMemoryJobRepository jobRepository;
+    protected JobRepository jobRepository;
     protected SseNotificationService sseNotificationService;
 
     @Autowired
-    public void setDependencies(InMemoryJobRepository jobRepository, SseNotificationService sseNotificationService) {
+    public void setDependencies(JobRepository jobRepository, SseNotificationService sseNotificationService) {
         this.jobRepository = jobRepository;
         this.sseNotificationService = sseNotificationService;
     }

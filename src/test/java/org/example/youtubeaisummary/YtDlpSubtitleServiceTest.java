@@ -79,7 +79,7 @@ class YtDlpSubtitleServiceTest {
         verify(mockYtDlpExecutor).executeAndSaveToFile(eq(testVideoId), eq("ko"), anyString());
         verify(mockFileManager).readFileContent(any(Path.class));
         verify(mockFileManager).deleteFile(any(Path.class));
-        verify(mockJobRepository, times(2)).updateJob(eq(testJobId), eq(JobStatusDto.JobStatus.SUBTITLE_EXTRACTING), anyString());
+        verify(mockJobRepository, times(1)).updateJob(eq(testJobId), eq(JobStatusDto.JobStatus.SUBTITLE_EXTRACTING), anyString());
         verify(mockJobRepository).updateJob(eq(testJobId), eq(JobStatusDto.JobStatus.SUBTITLE_EXTRACTION_COMPLETED), anyString());
     }
 

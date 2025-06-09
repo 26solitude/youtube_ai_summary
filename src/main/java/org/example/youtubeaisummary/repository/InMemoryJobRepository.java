@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-public class InMemoryJobRepository {
+public class InMemoryJobRepository implements JobRepository {
 
     private final Map<String, JobStatusDto> jobs = new ConcurrentHashMap<>();
 

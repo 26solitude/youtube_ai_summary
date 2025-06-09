@@ -1,7 +1,7 @@
 package org.example.youtubeaisummary.service;
 
 import org.example.youtubeaisummary.dto.JobStatusDto;
-import org.example.youtubeaisummary.repository.InMemoryJobRepository;
+import org.example.youtubeaisummary.repository.JobRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -17,9 +17,9 @@ public class SseNotificationService {
     public static final Logger logger = LoggerFactory.getLogger(SseNotificationService.class);
     public static final Long SSE_EMITTER_TIMEOUT = (long) 5 * 60 * 1000;  // 5분
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
-    private final InMemoryJobRepository jobRepository;
+    private final JobRepository jobRepository;
 
-    public SseNotificationService(InMemoryJobRepository jobRepository) {
+    public SseNotificationService(JobRepository jobRepository) {
         this.jobRepository = jobRepository;
     }
 

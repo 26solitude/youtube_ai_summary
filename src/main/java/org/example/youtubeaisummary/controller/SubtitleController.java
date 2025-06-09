@@ -2,7 +2,7 @@ package org.example.youtubeaisummary.controller;
 
 import org.example.youtubeaisummary.dto.JobResponseDto;
 import org.example.youtubeaisummary.dto.JobStatusDto;
-import org.example.youtubeaisummary.repository.InMemoryJobRepository;
+import org.example.youtubeaisummary.repository.JobRepository;
 import org.example.youtubeaisummary.service.OrchestrationService;
 import org.example.youtubeaisummary.service.SseNotificationService;
 import org.example.youtubeaisummary.vo.YoutubeVideo;
@@ -19,10 +19,10 @@ import java.util.UUID;
 public class SubtitleController {
 
     private final OrchestrationService orchestrationService;
-    private final InMemoryJobRepository jobRepository;
+    private final JobRepository jobRepository;
     private final SseNotificationService sseNotificationService;
 
-    public SubtitleController(OrchestrationService orchestrationService, InMemoryJobRepository jobRepository, SseNotificationService sseNotificationService) {
+    public SubtitleController(OrchestrationService orchestrationService, JobRepository jobRepository, SseNotificationService sseNotificationService) {
         this.orchestrationService = orchestrationService;
         this.jobRepository = jobRepository;
         this.sseNotificationService = sseNotificationService;
