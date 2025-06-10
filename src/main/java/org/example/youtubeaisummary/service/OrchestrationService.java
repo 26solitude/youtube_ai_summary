@@ -17,12 +17,14 @@ public class OrchestrationService {
     private static final Logger logger = LoggerFactory.getLogger(OrchestrationService.class);
 
     private final SubtitleService subtitleService;
+    private final AIService aiService;
     private final Executor subtitleTaskExecutor;
 
     public OrchestrationService(
             Map<String, SubtitleService> subtitleServiceImplementations,
-            @Value("${app.subtitle.provider}") String subtitleProvider,
+            @Value("${app.subtitle.provider}") String subtitleProvider, AIService aiService,
             @Qualifier("subtitleTaskExecutor") Executor subtitleTaskExecutor) {
+        this.aiService = aiService;
 
         this.subtitleService = subtitleServiceImplementations.get(subtitleProvider);
         if (this.subtitleService == null) {
@@ -38,14 +40,13 @@ public class OrchestrationService {
         CompletableFuture<String> subtitleFuture = subtitleService.fetchSubs(jobId, video);
 
         subtitleFuture.thenAcceptAsync(extractedText -> {
-                    logger.info("작업 ID: {}: OrchestrationService: SubtitleService로부터 자막을 성공적으로 추출했습니다. 텍스트 길이: {}", jobId, extractedText.length()); // 한글로 변경
+                    logger.info("작업 ID: {}: 자막 추출 성공 (텍스트 길이: {}). AI 요약을 시작합니다.", jobId, extractedText.length());
+                    aiService.summarize(jobId, extractedText);
                 }, subtitleTaskExecutor)
                 .exceptionally(ex -> {
                     Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
                     logger.error("작업 ID: {}: OrchestrationService 관점에서 자막 추출 실패. 예외: {}", jobId, cause.getMessage(), cause);
                     return null;
                 });
-
-        logger.info("작업 ID: {}: OrchestrationService: 비동기 자막 추출 및 후속 처리가 예약되었습니다.", jobId);
     }
 }
