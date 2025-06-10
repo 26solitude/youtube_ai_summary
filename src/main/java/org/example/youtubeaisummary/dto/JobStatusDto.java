@@ -5,7 +5,8 @@ public record JobStatusDto(String jobId, JobStatus status, String result) {
         PENDING,
         SUBTITLE_EXTRACTING,
         SUBTITLE_EXTRACTION_COMPLETED,
-        AI_SUMMARIZING,
+        AI_SUMMARIZING_PARTIAL,
+        AI_SUMMARIZING_FINAL,
         COMPLETED,
         FAILED
     }

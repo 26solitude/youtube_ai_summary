@@ -65,7 +65,8 @@ public class SseNotificationService {
     private String determineEventNameFromStatus(JobStatusDto.JobStatus status) {
         return switch (status) {
             case PENDING -> "pending";
-            case SUBTITLE_EXTRACTING, SUBTITLE_EXTRACTION_COMPLETED, AI_SUMMARIZING -> "progress";
+            case SUBTITLE_EXTRACTING, SUBTITLE_EXTRACTION_COMPLETED, AI_SUMMARIZING_PARTIAL, AI_SUMMARIZING_FINAL ->
+                    "progress";
             case COMPLETED -> "complete";
             case FAILED -> "error";
             default -> "statusUpdate";
