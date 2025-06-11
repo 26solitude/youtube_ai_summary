@@ -32,7 +32,7 @@ public class AIService {
         this.promptManager = promptManager;
     }
 
-    @Async("subtitleTaskExecutor")
+    @Async("aiTaskExecutor")
     public void summarize(String jobId, String subtitleText) {
         try {
             // --- 3. '결정'과 '실행'으로 로직을 명확히 분리 ---

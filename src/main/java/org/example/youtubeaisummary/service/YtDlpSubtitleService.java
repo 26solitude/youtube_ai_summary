@@ -36,7 +36,7 @@ public class YtDlpSubtitleService extends AbstractSubtitleService {
     }
 
     @Override
-    @Async("subtitleTaskExecutor")
+    @Async("ioTaskExecutor")
     public CompletableFuture<String> fetchSubs(String jobId, YoutubeVideo video) {
         Path expectedSubtitlePath = null;
         try {

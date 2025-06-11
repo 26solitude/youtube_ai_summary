@@ -17,7 +17,7 @@ public class AIChunkProcessor {
         this.promptManager = promptManager;
     }
 
-    @Async("subtitleTaskExecutor")
+    @Async("aiTaskExecutor")
     public CompletableFuture<String> getPartialSummary(String chunk) {
         String prompt = promptManager.getPartialSummaryPrompt(chunk);
         String partialSummary = chatClient.prompt().user(prompt).call().content();

@@ -8,13 +8,33 @@ import java.util.concurrent.Executor;
 
 @Configuration
 public class AsyncConfig {
-    @Bean(name = "subtitleTaskExecutor")
-    public Executor threadPoolTaskExecutor() {
+
+    private final int cores = Runtime.getRuntime().availableProcessors();
+
+    /**
+     * 자막 추출, 파일 처리 등 I/O 중심 작업을 위한 스레드 풀
+     */
+    @Bean(name = "ioTaskExecutor")
+    public Executor ioTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5); // 기본 스레드 수
-        executor.setMaxPoolSize(10); // 최대 스레드 수
-        executor.setQueueCapacity(25); // 대기 큐
-        executor.setThreadNamePrefix("Subtitle-");
+        executor.setCorePoolSize(cores * 2);
+        executor.setMaxPoolSize(20);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("IO-");
+        executor.initialize();
+        return executor;
+    }
+
+    /**
+     * AI API 호출 등 네트워크 중심 작업을 위한 스레드 풀
+     */
+    @Bean(name = "aiTaskExecutor")
+    public Executor aiTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(10);
+        executor.setMaxPoolSize(20);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("AI-");
         executor.initialize();
         return executor;
     }

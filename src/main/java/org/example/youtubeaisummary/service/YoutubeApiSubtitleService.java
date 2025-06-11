@@ -25,7 +25,7 @@ public class YoutubeApiSubtitleService extends AbstractSubtitleService {
     }
 
     @Override
-    @Async("subtitleTaskExecutor")
+    @Async("ioTaskExecutor")
     public CompletableFuture<String> fetchSubs(String jobId, YoutubeVideo video) {
         String videoId = video.getVideoId();
 
