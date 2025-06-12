@@ -4,6 +4,7 @@ import io.github.thoroldvix.api.*;
 import org.example.youtubeaisummary.dto.JobStatusDto;
 import org.example.youtubeaisummary.exception.subtitle.NoSubtitlesFoundException;
 import org.example.youtubeaisummary.repository.InMemoryJobRepository;
+import org.example.youtubeaisummary.service.JobManager;
 import org.example.youtubeaisummary.service.SseNotificationService;
 import org.example.youtubeaisummary.service.subtitle.YoutubeApiSubtitleService;
 import org.example.youtubeaisummary.vo.YoutubeVideo;
@@ -11,7 +12,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InOrder;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.concurrent.CompletableFuture;
@@ -40,14 +43,16 @@ class SubtitleServiceTest {
     private YoutubeApiSubtitleService subtitleService;
 
     private YoutubeVideo testVideo;
+    private JobManager jobManager;
 
     @BeforeEach
     void setUp() {
         // 모든 테스트 전에 공통으로 필요한 Mock 객체 설정
         testVideo = mock(YoutubeVideo.class);
         when(testVideo.getVideoId()).thenReturn(testVideoId);
+        jobManager = new JobManager(mockJobRepository, mockSseNotificationService);
 
-        subtitleService.setDependencies(mockJobRepository, mockSseNotificationService);
+        subtitleService.setJobManager(jobManager);
     }
 
     @Test
@@ -101,7 +106,7 @@ class SubtitleServiceTest {
         ExecutionException exception = assertThrows(ExecutionException.class, () -> subtitleService.fetchSubs(testJobId, testVideo).get());
 
         // 발생한 예외의 원인(cause)이 우리가 기대한 예외 타입과 메시지를 가졌는지 검증
-        assertTrue(exception.getCause() instanceof NoSubtitlesFoundException);
+        assertInstanceOf(NoSubtitlesFoundException.class, exception.getCause());
         assertEquals(userErrorMessage, exception.getCause().getMessage());
 
         // Verify: Mock 객체들의 호출 순서 및 내용을 검증
@@ -127,7 +132,7 @@ class SubtitleServiceTest {
 
         // Act & Assert
         ExecutionException exception = assertThrows(ExecutionException.class, () -> subtitleService.fetchSubs(testJobId, testVideo).get());
-        assertTrue(exception.getCause() instanceof NoSubtitlesFoundException);
+        assertInstanceOf(NoSubtitlesFoundException.class, exception.getCause());
         assertEquals(userErrorMessage, exception.getCause().getMessage());
 
         // Verify

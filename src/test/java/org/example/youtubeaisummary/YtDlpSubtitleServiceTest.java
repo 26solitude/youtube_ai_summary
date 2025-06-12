@@ -6,8 +6,9 @@ import org.example.youtubeaisummary.dto.JobStatusDto;
 import org.example.youtubeaisummary.exception.subtitle.NoSubtitlesFoundException;
 import org.example.youtubeaisummary.exception.subtitle.YoutubeApiException;
 import org.example.youtubeaisummary.repository.InMemoryJobRepository;
-import org.example.youtubeaisummary.service.subtitle.FileManager;
+import org.example.youtubeaisummary.service.JobManager;
 import org.example.youtubeaisummary.service.SseNotificationService;
+import org.example.youtubeaisummary.service.subtitle.FileManager;
 import org.example.youtubeaisummary.service.subtitle.YtDlpExecutor;
 import org.example.youtubeaisummary.service.subtitle.YtDlpSubtitleService;
 import org.example.youtubeaisummary.vo.YoutubeVideo;
@@ -31,6 +32,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class YtDlpSubtitleServiceTest {
 
+    private final String testJobId = "test-job-123";
+    private final String testVideoId = "testVideoId";
+    private final YoutubeVideo testVideo = new YoutubeVideo("https://www.youtube.com/watch?v=" + testVideoId);
     @Mock
     private YtDlpExecutor mockYtDlpExecutor;
     @Mock
@@ -41,17 +45,15 @@ class YtDlpSubtitleServiceTest {
     private InMemoryJobRepository mockJobRepository;
     @Mock
     private SseNotificationService mockSseNotificationService;
-
     @InjectMocks
     private YtDlpSubtitleService subtitleService;
-
-    private final String testJobId = "test-job-123";
-    private final String testVideoId = "testVideoId";
-    private final YoutubeVideo testVideo = new YoutubeVideo("https://www.youtube.com/watch?v=" + testVideoId);
+    private JobManager jobManager;
 
     @BeforeEach
     void setUp() {
-        subtitleService.setDependencies(mockJobRepository, mockSseNotificationService);
+        jobManager = new JobManager(mockJobRepository, mockSseNotificationService);
+
+        subtitleService.setJobManager(jobManager);
     }
 
     @Test

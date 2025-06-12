@@ -16,10 +16,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FileManagerTest {
 
-    private FileManager fileManager;
-
     @TempDir
     Path tempDir; // JUnit 5가 임시 디렉토리를 자동으로 생성하고 테스트 후 삭제합니다.
+    private FileManager fileManager;
 
     @BeforeEach
     void setUp() {
