@@ -1,4 +1,4 @@
-package org.example.youtubeaisummary.exception;
+package org.example.youtubeaisummary.exception.subtitle;
 
 public class SubtitleProcessingException extends RuntimeException {
     public SubtitleProcessingException(String message) {

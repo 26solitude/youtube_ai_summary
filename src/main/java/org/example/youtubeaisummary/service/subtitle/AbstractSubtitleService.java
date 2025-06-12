@@ -1,6 +1,7 @@
-package org.example.youtubeaisummary.service;
+package org.example.youtubeaisummary.service.subtitle;
 
 import org.example.youtubeaisummary.dto.JobStatusDto;
+import org.example.youtubeaisummary.service.JobManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractSubtitleService implements SubtitleService {

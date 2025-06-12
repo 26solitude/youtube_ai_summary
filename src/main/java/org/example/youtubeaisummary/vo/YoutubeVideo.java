@@ -1,6 +1,6 @@
 package org.example.youtubeaisummary.vo;
 
-import org.example.youtubeaisummary.exception.InvalidYoutubeUrlException;
+import org.example.youtubeaisummary.exception.subtitle.InvalidYoutubeUrlException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

@@ -1,4 +1,4 @@
-package org.example.youtubeaisummary.service;
+package org.example.youtubeaisummary.service.ai;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.scheduling.annotation.Async;

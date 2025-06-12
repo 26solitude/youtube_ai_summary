@@ -1,6 +1,7 @@
-package org.example.youtubeaisummary.service;
+package org.example.youtubeaisummary.service.ai;
 
 import org.example.youtubeaisummary.dto.JobStatusDto;
+import org.example.youtubeaisummary.service.JobManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;

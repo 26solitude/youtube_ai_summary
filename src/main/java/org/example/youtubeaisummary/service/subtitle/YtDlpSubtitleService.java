@@ -1,10 +1,10 @@
-package org.example.youtubeaisummary.service;
+package org.example.youtubeaisummary.service.subtitle;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.youtubeaisummary.dto.JobStatusDto;
-import org.example.youtubeaisummary.exception.NoSubtitlesFoundException;
-import org.example.youtubeaisummary.exception.YoutubeApiException;
+import org.example.youtubeaisummary.exception.subtitle.NoSubtitlesFoundException;
+import org.example.youtubeaisummary.exception.subtitle.YoutubeApiException;
 import org.example.youtubeaisummary.vo.YoutubeVideo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

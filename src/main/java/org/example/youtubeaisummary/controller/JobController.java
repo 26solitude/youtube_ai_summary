@@ -16,13 +16,13 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/jobs")
-public class SubtitleController {
+public class JobController {
 
     private final OrchestrationService orchestrationService;
     private final JobRepository jobRepository;
     private final SseNotificationService sseNotificationService;
 
-    public SubtitleController(OrchestrationService orchestrationService, JobRepository jobRepository, SseNotificationService sseNotificationService) {
+    public JobController(OrchestrationService orchestrationService, JobRepository jobRepository, SseNotificationService sseNotificationService) {
         this.orchestrationService = orchestrationService;
         this.jobRepository = jobRepository;
         this.sseNotificationService = sseNotificationService;

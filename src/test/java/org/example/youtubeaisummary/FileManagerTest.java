@@ -1,7 +1,7 @@
 package org.example.youtubeaisummary;
 
-import org.example.youtubeaisummary.exception.NoSubtitlesFoundException;
-import org.example.youtubeaisummary.service.FileManager;
+import org.example.youtubeaisummary.exception.subtitle.NoSubtitlesFoundException;
+import org.example.youtubeaisummary.service.subtitle.FileManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

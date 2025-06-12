@@ -1,4 +1,4 @@
-package org.example.youtubeaisummary.service;
+package org.example.youtubeaisummary.service.subtitle;
 
 
 import org.example.youtubeaisummary.vo.YoutubeVideo;

@@ -1,4 +1,4 @@
-package org.example.youtubeaisummary.service;
+package org.example.youtubeaisummary.service.ai;
 
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.beans.factory.annotation.Value;

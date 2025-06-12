@@ -2,10 +2,10 @@ package org.example.youtubeaisummary;
 
 import io.github.thoroldvix.api.*;
 import org.example.youtubeaisummary.dto.JobStatusDto;
-import org.example.youtubeaisummary.exception.NoSubtitlesFoundException;
+import org.example.youtubeaisummary.exception.subtitle.NoSubtitlesFoundException;
 import org.example.youtubeaisummary.repository.InMemoryJobRepository;
 import org.example.youtubeaisummary.service.SseNotificationService;
-import org.example.youtubeaisummary.service.YoutubeApiSubtitleService;
+import org.example.youtubeaisummary.service.subtitle.YoutubeApiSubtitleService;
 import org.example.youtubeaisummary.vo.YoutubeVideo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

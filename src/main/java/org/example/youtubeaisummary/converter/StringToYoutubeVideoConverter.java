@@ -1,6 +1,6 @@
 package org.example.youtubeaisummary.converter;
 
-import org.example.youtubeaisummary.exception.InvalidYoutubeUrlException;
+import org.example.youtubeaisummary.exception.subtitle.InvalidYoutubeUrlException;
 import org.example.youtubeaisummary.vo.YoutubeVideo;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;

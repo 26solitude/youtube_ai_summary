@@ -1,6 +1,6 @@
-package org.example.youtubeaisummary.service;
+package org.example.youtubeaisummary.service.subtitle;
 
-import org.example.youtubeaisummary.exception.NoSubtitlesFoundException;
+import org.example.youtubeaisummary.exception.subtitle.NoSubtitlesFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
