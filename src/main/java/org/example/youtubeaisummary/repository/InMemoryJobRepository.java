@@ -12,9 +12,11 @@ public class InMemoryJobRepository implements JobRepository {
 
     private final Map<String, JobStatusDto> jobs = new ConcurrentHashMap<>();
 
-    // 새로운 작업 생성 (초기 상태: PENDING)
-    public void createJob(String jobId) {
-        jobs.put(jobId, new JobStatusDto(jobId, JobStatusDto.JobStatus.PENDING, null));
+    // 새로운 작업이 생성되었으면 true, 이미 존재하면 false return
+    @Override
+    public boolean createJobIfAbsent(String jobId) {
+        JobStatusDto initialStatus = new JobStatusDto(jobId, JobStatusDto.JobStatus.PENDING, null);
+        return jobs.putIfAbsent(jobId, initialStatus) == null;
     }
 
     // 작업 상태 및 결과 조회

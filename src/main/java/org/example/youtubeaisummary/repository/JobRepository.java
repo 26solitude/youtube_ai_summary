@@ -6,7 +6,7 @@ import org.example.youtubeaisummary.dto.JobStatusDto;
 import java.util.Optional;
 
 public interface JobRepository {
-    void createJob(String jobId);
+    boolean createJobIfAbsent(String jobId);
 
     Optional<JobStatusDto> getJobStatus(String jobId);
 
