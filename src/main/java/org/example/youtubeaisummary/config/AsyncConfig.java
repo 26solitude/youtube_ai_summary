@@ -9,16 +9,19 @@ import java.util.concurrent.Executor;
 @Configuration
 public class AsyncConfig {
 
-    private final int cores = Runtime.getRuntime().availableProcessors();
-
     /**
      * 자막 추출, 파일 처리 등 I/O 중심 작업을 위한 스레드 풀
      */
     @Bean(name = "ioTaskExecutor")
     public Executor ioTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(cores * 2);
-        executor.setMaxPoolSize(20);
+
+        int cores = Runtime.getRuntime().availableProcessors();
+        int corePoolSize = cores * 2;
+
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(Math.max(corePoolSize * 2, 20));
+
         executor.setQueueCapacity(100);
         executor.setThreadNamePrefix("IO-");
         executor.initialize();
