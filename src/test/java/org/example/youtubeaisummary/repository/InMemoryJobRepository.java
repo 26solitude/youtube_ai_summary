@@ -1,6 +1,7 @@
 package org.example.youtubeaisummary.repository;
 
 import org.example.youtubeaisummary.dto.JobStatusDto;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
+@Profile("local")
 public class InMemoryJobRepository implements JobRepository {
 
     private final Map<String, JobStatusDto> jobs = new ConcurrentHashMap<>();
