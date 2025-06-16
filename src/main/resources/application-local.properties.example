@@ -1,0 +1,6 @@
+# 이 파일의 복사본을 만들어 'application-local.properties'로 저장하고
+# 자신의 로컬 환경에 맞는 yt-dlp 실행 파일의 전체 경로를 입력하세요.
+# 예시 (Windows): app.ytdlp.path=C:/path/to/your/yt-dlp.exe
+# 예시 (macOS/Homebrew): app.ytdlp.path=/opt/homebrew/bin/yt-dlp
+
+app.ytdlp.path=
