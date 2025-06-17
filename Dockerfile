@@ -1,4 +1,4 @@
-# 1. 베이스 이미지 선택: Java 17이 설치된 가벼운 OS(Alpine Linux) 이미지를 사용합니다.
+# 1. 베이스 이미지 선택: Java 21이 설치된 가벼운 OS(Alpine Linux) 이미지를 사용합니다.
 FROM amazoncorretto:21-alpine-jdk
 
 # 2. 외부 의존성 설치: yt-dlp 실행에 필요한 python과 curl을 설치합니다.
