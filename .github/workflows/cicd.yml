@@ -4,7 +4,7 @@ name: YouTube Summary CI/CD with Docker
 # 언제 이 워크플로우를 실행할지 정의
 on:
   push:
-    branches: [ "main" ] # main 브랜치에 push 될 때 실행
+    branches: [ "master" ] # main 브랜치에 push 될 때 실행
 
 # 실행될 작업(Job)들을 정의
 jobs:
