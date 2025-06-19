@@ -17,4 +17,4 @@ WORKDIR /app
 COPY build/libs/*.jar app.jar
 
 # 6. 애플리케이션 실행: 컨테이너가 시작될 때 이 명령어를 실행합니다.
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

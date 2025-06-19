@@ -15,11 +15,14 @@ public class YtDlpExecutor {
     @Value("${app.ytdlp.path}")
     private String ytDlpPath;
 
+    // 쿠키 파일 경로를 상수로 정의합니다.
+    private static final String COOKIE_FILE_PATH = "/app/cookies.txt";
+
     /**
      * 명령어를 실행하고 표준 출력에서 JSON 한 줄을 반환합니다.
      */
     public String executeAndGetJson(String videoId) throws IOException, InterruptedException {
-        List<String> command = List.of(ytDlpPath, "--dump-json", "--no-warnings", videoId);
+        List<String> command = List.of(ytDlpPath, "--cookies", COOKIE_FILE_PATH, "--dump-json", "--no-warnings", videoId);
         return execute(command, true);
     }
 
@@ -29,6 +32,7 @@ public class YtDlpExecutor {
     public void executeAndSaveToFile(String videoId, String langCode, String outputTemplate) throws IOException, InterruptedException {
         List<String> command = List.of(
                 ytDlpPath,
+                "--cookies", COOKIE_FILE_PATH,
                 "--write-auto-sub",
                 "--sub-lang", langCode,
                 "--sub-format", "vtt",
