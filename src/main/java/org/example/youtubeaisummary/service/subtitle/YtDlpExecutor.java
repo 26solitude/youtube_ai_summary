@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Component
 @Slf4j
@@ -34,13 +35,20 @@ public class YtDlpExecutor {
     public String executeAndGetJson(String videoId) throws IOException, InterruptedException {
         List<String> command = new ArrayList<>(List.of(ytDlpPath, "--dump-json", "--no-warnings"));
         addProxyToCommandIfEnabled(command);
-
         command.add(videoId);
-        return execute(command, true);
+
+        String processOutput = execute(command);
+
+        // 실행 결과에서 JSON 라인을 찾아 반환합니다.
+        return Stream.of(processOutput.split(System.lineSeparator()))
+                .map(String::trim)
+                .filter(line -> line.startsWith("{") && line.endsWith("}"))
+                .findFirst()
+                .orElseThrow(() -> new IOException("yt-dlp로부터 유효한 JSON 출력을 찾지 못했습니다."));
     }
 
     /**
-     * 명령어를 실행하여 파일로 저장합니다.
+     * 자막 파일을 다운로드합니다.
      */
     public void executeAndSaveToFile(String videoId, String langCode, String outputTemplate) throws IOException, InterruptedException {
         List<String> command = new ArrayList<>(List.of(
@@ -55,42 +63,43 @@ public class YtDlpExecutor {
         ));
         addProxyToCommandIfEnabled(command);
         command.add(videoId);
-        execute(command, false);
+
+        // 명령어를 실행하고, 이 메서드는 파일 저장이 목적이므로 출력은 무시합니다.
+        execute(command);
     }
 
-    // 프록시 옵션을 추가하는 로직
+    /**
+     * yt-dlp 명령어를 실행하고 전체 출력을 문자열로 반환하는 private 헬퍼 메서드입니다.
+     * 이 메서드는 오직 '명령어 실행'과 '결과 반환' 책임만 가집니다.
+     */
+    private String execute(List<String> command) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.redirectErrorStream(true);
+        Process process = processBuilder.start();
+
+        StringBuilder fullOutput = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                fullOutput.append(line).append(System.lineSeparator());
+            }
+        }
+
+        int exitCode = process.waitFor();
+        if (exitCode != 0) {
+            log.error("yt-dlp process exited with code {}. Command: {}\n--- yt-dlp output ---\n{}",
+                    exitCode, String.join(" ", command), fullOutput.toString());
+            throw new IOException("yt-dlp process exited with code " + exitCode);
+        }
+
+        return fullOutput.toString();
+    }
+
     private void addProxyToCommandIfEnabled(List<String> command) {
         if (proxyEnabled && proxyUrl != null && !proxyUrl.isEmpty()) {
             command.add("--proxy");
             command.add(proxyUrl);
             log.info("프록시를 사용하여 yt-dlp를 실행합니다.");
         }
-    }
-
-    private String execute(List<String> command, boolean returnJson) throws IOException, InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
-        processBuilder.redirectErrorStream(true);
-        Process process = processBuilder.start();
-
-        StringBuilder output = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (returnJson) {
-                    String trimmedLine = line.trim();
-                    if (trimmedLine.startsWith("{") && trimmedLine.endsWith("}")) {
-                        output.append(trimmedLine);
-                        break;
-                    }
-                }
-            }
-        }
-
-        int exitCode = process.waitFor();
-        if (exitCode != 0) {
-            log.error("yt-dlp process exited with code {}. Command: {}", exitCode, String.join(" ", command));
-            throw new IOException("yt-dlp process exited with code " + exitCode);
-        }
-        return output.toString();
     }
 }
