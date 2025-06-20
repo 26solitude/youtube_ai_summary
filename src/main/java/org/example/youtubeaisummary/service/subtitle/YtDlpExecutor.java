@@ -32,7 +32,7 @@ public class YtDlpExecutor {
      * 명령어를 실행하고 표준 출력에서 JSON 한 줄을 반환합니다.
      */
     public String executeAndGetJson(String videoId) throws IOException, InterruptedException {
-        List<String> command = List.of(ytDlpPath, "--dump-json", "--no-warnings");
+        List<String> command = new ArrayList<>(List.of(ytDlpPath, "--dump-json", "--no-warnings"));
         addProxyToCommandIfEnabled(command);
 
         command.add(videoId);
