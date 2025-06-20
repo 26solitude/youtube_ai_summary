@@ -80,5 +80,5 @@ jobs:
               -e "DB_USERNAME=${{ secrets.DB_USERNAME }}" \
               -e "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
               -e "PROXY_URL=${{ secrets.PROXY_URL }}" \
-              -e "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" \
+              -e "SPRING_AI_OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" \
               ${{ secrets.DOCKERHUB_USERNAME }}/youtube-ai-summary:latest
