@@ -45,6 +45,7 @@ public class YtDlpExecutor {
     public void executeAndSaveToFile(String videoId, String langCode, String outputTemplate) throws IOException, InterruptedException {
         List<String> command = new ArrayList<>(List.of(
                 ytDlpPath,
+                "--verbose",
                 "--write-auto-sub",
                 "--sub-lang", langCode,
                 "--sub-format", "vtt",
