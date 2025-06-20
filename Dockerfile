@@ -1,14 +1,19 @@
-# --- 1단계: 빌드 스테이지 ---
-FROM python:3.11-slim as builder
-RUN pip install --upgrade yt-dlp
-
-# --- 2단계: 최종 실행 스테이지 ---
+# 베이스 이미지로 Amazon Corretto 21 (Amazon Linux 2 기반)을 사용합니다.
 FROM amazoncorretto:21-al2-jdk
-RUN yum install -y curl
 
-# pip로 설치될 때 일반적으로 사용되는 경로를 직접 명시합니다.
-COPY --from=builder /usr/local/bin/yt-dlp /usr/local/bin/yt-dlp
+# yum을 사용하여 python3와 pip를 설치합니다.
+# -y 옵션으로 모든 프롬프트에 자동으로 'yes'를 응답합니다.
+RUN yum update -y && yum install -y python3-pip
 
+# pip를 사용하여 yt-dlp를 설치합니다.
+RUN pip3 install --upgrade yt-dlp
+
+# 애플리케이션 작업 디렉토리 설정
 WORKDIR /app
+
+# 빌드된 JAR 파일을 이미지로 복사
 COPY build/libs/*.jar app.jar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# 컨테이너 시작 시 실행될 명령어
+# prod 프로필을 활성화하여 애플리케이션을 실행합니다.
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "app.jar"]

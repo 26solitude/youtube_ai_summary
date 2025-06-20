@@ -45,6 +45,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/youtube-ai-summary:latest
 
@@ -56,16 +57,6 @@ jobs:
           username: ${{ secrets.AWS_EC2_USERNAME }}
           key: ${{ secrets.AWS_EC2_KEY }}
           script: | # EC2 서버에서 실행될 스크립트
-            # Docker 설치 (최초 배포 시 또는 서버에 Docker가 없을 경우)
-            if ! [ -x "$(command -v docker)" ]; then
-              sudo yum update -y
-              sudo yum install -y docker
-              sudo systemctl start docker
-              sudo systemctl enable docker
-              sudo usermod -aG docker ec2-user
-            fi
-            
-            # 모든 docker 명령어 앞에 sudo를 붙여서 권한 문제 해결
             # 최신 버전의 Docker 이미지 받아오기
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/youtube-ai-summary:latest
             
@@ -73,7 +64,7 @@ jobs:
             sudo docker stop youtube-summary-container || true
             sudo docker rm youtube-summary-container || true
             
-            # 새 컨테이너 실행 (GitHub Secrets를 환경 변수로 주입)
+            # 새 컨테이너 실행 (환경 변수 주입)
             sudo docker run -d --name youtube-summary-container -p 8080:8080 \
               -e "SPRING_PROFILES_ACTIVE=prod" \
               -e "DB_URL=${{ secrets.DB_URL }}" \
