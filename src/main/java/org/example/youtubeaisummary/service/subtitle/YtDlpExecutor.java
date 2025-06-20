@@ -1,5 +1,6 @@
 package org.example.youtubeaisummary.service.subtitle;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -7,22 +8,34 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@Slf4j
 public class YtDlpExecutor {
 
-    @Value("${app.ytdlp.path}")
-    private String ytDlpPath;
+    private final String ytDlpPath;
+    private final boolean proxyEnabled;
+    private final String proxyUrl;
 
-    // 쿠키 파일 경로를 상수로 정의합니다.
-    private static final String COOKIE_FILE_PATH = "/app/cookies.txt";
+    public YtDlpExecutor(@Value("${app.ytdlp.path}") String ytDlpPath,
+                         @Value("${proxy.enabled:false}") boolean proxyEnabled,
+                         @Value("${proxy.url:}") String proxyUrl) {
+        this.ytDlpPath = ytDlpPath;
+        this.proxyEnabled = proxyEnabled;
+        this.proxyUrl = proxyUrl;
+    }
+
 
     /**
      * 명령어를 실행하고 표준 출력에서 JSON 한 줄을 반환합니다.
      */
     public String executeAndGetJson(String videoId) throws IOException, InterruptedException {
-        List<String> command = List.of(ytDlpPath, "--cookies", COOKIE_FILE_PATH, "--dump-json", "--no-warnings", videoId);
+        List<String> command = List.of(ytDlpPath, "--dump-json", "--no-warnings");
+        addProxyToCommandIfEnabled(command);
+
+        command.add(videoId);
         return execute(command, true);
     }
 
@@ -30,18 +43,27 @@ public class YtDlpExecutor {
      * 명령어를 실행하여 파일로 저장합니다.
      */
     public void executeAndSaveToFile(String videoId, String langCode, String outputTemplate) throws IOException, InterruptedException {
-        List<String> command = List.of(
+        List<String> command = new ArrayList<>(List.of(
                 ytDlpPath,
-                "--cookies", COOKIE_FILE_PATH,
                 "--write-auto-sub",
                 "--sub-lang", langCode,
                 "--sub-format", "vtt",
                 "--convert-subs", "vtt",
                 "--skip-download",
-                "-o", outputTemplate,
-                videoId
-        );
+                "-o", outputTemplate
+        ));
+        addProxyToCommandIfEnabled(command);
+        command.add(videoId);
         execute(command, false);
+    }
+
+    // 프록시 옵션을 추가하는 로직
+    private void addProxyToCommandIfEnabled(List<String> command) {
+        if (proxyEnabled && proxyUrl != null && !proxyUrl.isEmpty()) {
+            command.add("--proxy");
+            command.add(proxyUrl);
+            log.info("프록시를 사용하여 yt-dlp를 실행합니다.");
+        }
     }
 
     private String execute(List<String> command, boolean returnJson) throws IOException, InterruptedException {
@@ -57,17 +79,16 @@ public class YtDlpExecutor {
                     String trimmedLine = line.trim();
                     if (trimmedLine.startsWith("{") && trimmedLine.endsWith("}")) {
                         output.append(trimmedLine);
-                        // JSON은 한 줄이므로 찾으면 바로 루프 종료
                         break;
                     }
                 }
-                // JSON을 반환하지 않는 경우, 스트림을 소모하기만 함
             }
         }
 
         int exitCode = process.waitFor();
         if (exitCode != 0) {
-            throw new IOException("yt-dlp process exited with code " + exitCode + " for command: " + String.join(" ", command));
+            log.error("yt-dlp process exited with code {}. Command: {}", exitCode, String.join(" ", command));
+            throw new IOException("yt-dlp process exited with code " + exitCode);
         }
         return output.toString();
     }
