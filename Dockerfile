@@ -1,9 +1,9 @@
-# 1. 베이스 이미지 선택: Java 21이 설치된 가벼운 OS(Alpine Linux) 이미지를 사용합니다.
-FROM amazoncorretto:21-alpine-jdk
+# 1. 베이스 이미지 선택: Amazon Linux 2
+FROM amazoncorretto:21-al2-jdk
 
 # 2. 외부 의존성 설치: yt-dlp 실행에 필요한 python과 curl을 설치합니다.
 # RUN 명령어는 도커 이미지를 만드는 과정에서 실행되는 셸 명령어입니다.
-RUN apk --no-cache add python3 py3-pip curl
+RUN yum install -y python3 python3-pip curl
 
 # 3. yt-dlp 설치: EC2 서버에서 했던 것과 동일한 명령어로 yt-dlp를 설치합니다.
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
