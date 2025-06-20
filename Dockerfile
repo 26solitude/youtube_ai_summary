@@ -8,6 +8,7 @@ RUN apk --no-cache add python3 py3-pip curl
 # 3. yt-dlp 설치: EC2 서버에서 했던 것과 동일한 명령어로 yt-dlp를 설치합니다.
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
 RUN chmod a+rx /usr/local/bin/yt-dlp
+RUN yt-dlp -U
 
 # 4. 작업 디렉토리 설정: 이미지 안에서 작업할 기본 폴더를 /app으로 지정합니다.
 WORKDIR /app
