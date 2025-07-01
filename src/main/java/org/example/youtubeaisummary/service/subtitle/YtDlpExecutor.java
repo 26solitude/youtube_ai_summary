@@ -19,13 +19,16 @@ public class YtDlpExecutor {
     private final String ytDlpPath;
     private final boolean proxyEnabled;
     private final String proxyUrl;
+    private final String cookieFilePath;
 
     public YtDlpExecutor(@Value("${app.ytdlp.path}") String ytDlpPath,
                          @Value("${proxy.enabled:false}") boolean proxyEnabled,
-                         @Value("${proxy.url:}") String proxyUrl) {
+                         @Value("${proxy.url:}") String proxyUrl,
+                         @Value("${app.ytdlp.cookie-path:}") String cookieFilePath) {
         this.ytDlpPath = ytDlpPath;
         this.proxyEnabled = proxyEnabled;
         this.proxyUrl = proxyUrl;
+        this.cookieFilePath = cookieFilePath;
     }
 
 
@@ -35,6 +38,8 @@ public class YtDlpExecutor {
     public String executeAndGetJson(String videoId) throws IOException, InterruptedException {
         List<String> command = new ArrayList<>(List.of(ytDlpPath, "--dump-json", "--no-warnings"));
         addProxyToCommandIfEnabled(command);
+        addCookieToCommandIfEnabled(command);
+
         command.add(videoId);
 
         String processOutput = execute(command);
@@ -62,6 +67,8 @@ public class YtDlpExecutor {
                 "-o", outputTemplate
         ));
         addProxyToCommandIfEnabled(command);
+        addCookieToCommandIfEnabled(command);
+
         command.add(videoId);
 
         // 명령어를 실행하고, 이 메서드는 파일 저장이 목적이므로 출력은 무시합니다.
@@ -100,6 +107,14 @@ public class YtDlpExecutor {
             command.add("--proxy");
             command.add(proxyUrl);
             log.info("프록시를 사용하여 yt-dlp를 실행합니다.");
+        }
+    }
+
+    private void addCookieToCommandIfEnabled(List<String> command) {
+        if(cookieFilePath != null && !cookieFilePath.isEmpty()){
+            command.add("--cookies");
+            command.add(cookieFilePath);
+            log.info("쿠키 파일을 사용하여 yt-dlp를 실행합니다: {}", cookieFilePath);
         }
     }
 }
