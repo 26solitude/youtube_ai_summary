@@ -5,6 +5,9 @@ FROM amazoncorretto:21-al2-jdk
 # -y 옵션으로 모든 프롬프트에 자동으로 'yes'를 응답합니다.
 RUN yum update -y && yum install -y python3-pip
 
+# pip 자체를 최신 버전으로 업그레이드합니다.
+RUN pip3 install --upgrade pip
+
 # 이 값은 외부에서 주입되며, 값이 바뀔 때마다 이 아래의 캐시는 무효화됩니다.
 ARG CACHE_BUSTER
 
