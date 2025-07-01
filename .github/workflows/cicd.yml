@@ -48,6 +48,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/youtube-ai-summary:latest
+          build-args: |
+            CACHE_BUSTER=${{ github.run_id }}
 
       # 7. EC2에 접속하여 배포 (나중에 등록할 Secrets를 사용)
       - name: Deploy to EC2
