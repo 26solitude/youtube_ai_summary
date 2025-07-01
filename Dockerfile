@@ -11,10 +11,10 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # pip 자체를 최신 버전으로 업그레이드합니다.
-RUN pip3 install --upgrade pip
+RUN pip3 install --upgrade pip --break-system-packages
 
 # yt-dlp를 최신 버전으로 설치합니다.
-RUN pip3 install --upgrade yt-dlp
+RUN pip3 install --upgrade yt-dlp --break-system-packages
 
 # 설치된 버전을 로그에 출력하여 확인합니다.
 RUN yt-dlp --version
