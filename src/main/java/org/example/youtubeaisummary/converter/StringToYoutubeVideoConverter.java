@@ -11,7 +11,7 @@ public class StringToYoutubeVideoConverter implements Converter<String, YoutubeV
     @Override
     public YoutubeVideo convert(String source) {
         if (source == null || source.isEmpty()) {
-            throw new InvalidYoutubeUrlException("ouTube URL은 null이거나 비어 있을 수 없습니다.");
+            throw new InvalidYoutubeUrlException("YouTube URL은 null이거나 비어 있을 수 없습니다.");
         }
         return new YoutubeVideo(source);
     }

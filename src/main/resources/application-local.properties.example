@@ -4,3 +4,4 @@
 # 예시 (macOS/Homebrew): app.ytdlp.path=/opt/homebrew/bin/yt-dlp
 
 app.ytdlp.path=
+spring.ai.openai.api-key=
