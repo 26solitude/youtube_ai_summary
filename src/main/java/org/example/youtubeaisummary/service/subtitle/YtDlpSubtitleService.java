@@ -14,10 +14,8 @@ import org.springframework.stereotype.Service;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 @Service("ytDlp")
 public class YtDlpSubtitleService extends AbstractSubtitleService {
@@ -28,11 +26,13 @@ public class YtDlpSubtitleService extends AbstractSubtitleService {
     private final YtDlpExecutor ytDlpExecutor;
     private final FileManager fileManager;
     private final ObjectMapper objectMapper;
+    private final SubtitleProcessor subtitleProcessor;
 
-    public YtDlpSubtitleService(YtDlpExecutor ytDlpExecutor, FileManager fileManager, ObjectMapper objectMapper) {
+    public YtDlpSubtitleService(YtDlpExecutor ytDlpExecutor, FileManager fileManager, ObjectMapper objectMapper, SubtitleProcessor subtitleProcessor) {
         this.ytDlpExecutor = ytDlpExecutor;
         this.fileManager = fileManager;
         this.objectMapper = objectMapper;
+        this.subtitleProcessor = subtitleProcessor;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class YtDlpSubtitleService extends AbstractSubtitleService {
 
             // 3. 자막 다운로드
             Path tempDir = fileManager.getTempDir();
-            expectedSubtitlePath = tempDir.resolve(video.getVideoId() + "." + langCode + ".vtt");
+            expectedSubtitlePath = tempDir.resolve(video.getVideoId() + "." + langCode + ".srt");
             if (Files.notExists(tempDir)) Files.createDirectories(tempDir);
             String outputTemplate = tempDir.resolve("%(id)s.%(ext)s").toString();
 
@@ -58,7 +58,7 @@ public class YtDlpSubtitleService extends AbstractSubtitleService {
 
             // 4. 파일 읽고 정제하기
             String rawSubtitle = fileManager.readFileContent(expectedSubtitlePath);
-            String cleanedText = cleanSubtitleText(rawSubtitle);
+            String cleanedText = subtitleProcessor.process(rawSubtitle);
 
             // 5. 성공 처리
             updateJobProgress(jobId, JobStatusDto.JobStatus.SUBTITLE_EXTRACTION_COMPLETED, cleanedText);
@@ -99,22 +99,4 @@ public class YtDlpSubtitleService extends AbstractSubtitleService {
         throw new NoSubtitlesFoundException("처리 가능한 언어의 자동 생성 자막을 찾을 수 없습니다.");
     }
 
-    private String cleanSubtitleText(String rawVttSubtitle) {
-        LinkedHashSet<String> cleanedLines = new LinkedHashSet<>();
-        String[] lines = rawVttSubtitle.split("\\r?\\n");
-        for (String line : lines) {
-            if (line.trim().isEmpty() ||
-                    line.startsWith("WEBVTT") ||
-                    line.contains("-->") ||
-                    line.startsWith("Kind:") ||
-                    line.startsWith("Language:")) {
-                continue;
-            }
-            String textOnly = line.replaceAll("<[^>]*>", "").trim();
-            if (!textOnly.isEmpty()) {
-                cleanedLines.add(textOnly);
-            }
-        }
-        return cleanedLines.stream().collect(Collectors.joining(" "));
-    }
 }

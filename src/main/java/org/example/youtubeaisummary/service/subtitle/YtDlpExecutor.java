@@ -10,7 +10,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Component
 @Slf4j
@@ -36,20 +35,18 @@ public class YtDlpExecutor {
      * 명령어를 실행하고 표준 출력에서 JSON 한 줄을 반환합니다.
      */
     public String executeAndGetJson(String videoId) throws IOException, InterruptedException {
-        List<String> command = new ArrayList<>(List.of(ytDlpPath, "--dump-json", "--no-warnings"));
+        List<String> command = new ArrayList<>(List.of(ytDlpPath, "--dump-single-json", "--no-warnings"));
         addProxyToCommandIfEnabled(command);
         addCookieToCommandIfEnabled(command);
-
         command.add(videoId);
 
         String processOutput = execute(command);
 
         // 실행 결과에서 JSON 라인을 찾아 반환합니다.
-        return Stream.of(processOutput.split(System.lineSeparator()))
-                .map(String::trim)
-                .filter(line -> line.startsWith("{") && line.endsWith("}"))
-                .findFirst()
-                .orElseThrow(() -> new IOException("yt-dlp로부터 유효한 JSON 출력을 찾지 못했습니다."));
+        if (processOutput.trim().startsWith("{") && processOutput.trim().endsWith("}")) {
+            return processOutput.trim();
+        }
+        throw new IOException("yt-dlp로부터 유효한 JSON 출력을 찾지 못했습니다.");
     }
 
     /**
@@ -58,15 +55,12 @@ public class YtDlpExecutor {
     public void executeAndSaveToFile(String videoId, String langCode, String outputTemplate) throws IOException, InterruptedException {
         List<String> command = new ArrayList<>(List.of(
                 ytDlpPath,
-                "--verbose",
-                "--write-auto-sub",
+                "--write-auto-subs",
                 "--sub-lang", langCode,
-                "--sub-format", "vtt",
-                "--convert-subs", "vtt",
+                "--convert-subs", "srt",
                 "--skip-download",
                 "-o", outputTemplate
         ));
-        addProxyToCommandIfEnabled(command);
         addCookieToCommandIfEnabled(command);
 
         command.add(videoId);
