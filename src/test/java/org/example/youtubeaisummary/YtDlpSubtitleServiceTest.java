@@ -9,6 +9,7 @@ import org.example.youtubeaisummary.repository.InMemoryJobRepository;
 import org.example.youtubeaisummary.service.JobManager;
 import org.example.youtubeaisummary.service.SseNotificationService;
 import org.example.youtubeaisummary.service.subtitle.FileManager;
+import org.example.youtubeaisummary.service.subtitle.SubtitleProcessor;
 import org.example.youtubeaisummary.service.subtitle.YtDlpExecutor;
 import org.example.youtubeaisummary.service.subtitle.YtDlpSubtitleService;
 import org.example.youtubeaisummary.vo.YoutubeVideo;
@@ -45,6 +46,9 @@ class YtDlpSubtitleServiceTest {
     private InMemoryJobRepository mockJobRepository;
     @Mock
     private SseNotificationService mockSseNotificationService;
+    @Mock
+    private SubtitleProcessor mockSubtitleProcessor;
+
     @InjectMocks
     private YtDlpSubtitleService subtitleService;
     private JobManager jobManager;
@@ -62,27 +66,30 @@ class YtDlpSubtitleServiceTest {
         // Arrange
         String fakeJson = "{\"language\": \"ko\", \"automatic_captions\": {\"ko\": []}}";
         JsonNode fakeJsonNode = new ObjectMapper().readTree(fakeJson);
-        String rawVtt = "WEBVTT\n\n00:00:01.000 --> 00:00:02.000\n안녕하세요";
+        String rawSubtitleText = "WEBVTT\n\n00:00:01.000 --> 00:00:02.000\n안녕하세요";
+        String processedText = "정제된 최종 텍스트"; // <-- 1. 예상되는 최종 결과 정의
         Path fakePath = Path.of("fake/path");
 
-        // when() 부분은 유연하게 anyString()을 유지
         when(mockYtDlpExecutor.executeAndGetJson(anyString())).thenReturn(fakeJson);
         when(mockObjectMapper.readTree(fakeJson)).thenReturn(fakeJsonNode);
         when(mockFileManager.getTempDir()).thenReturn(fakePath);
-        when(mockFileManager.readFileContent(any(Path.class))).thenReturn(rawVtt);
+        when(mockFileManager.readFileContent(any(Path.class))).thenReturn(rawSubtitleText);
+        when(mockSubtitleProcessor.process(rawSubtitleText)).thenReturn(processedText); // <-- 2. Mockito 행동 정의
 
         // Act
         String result = subtitleService.fetchSubs(testJobId, testVideo).get();
 
         // Assert
-        assertEquals("안녕하세요", result);
+        assertEquals(processedText, result); // <-- 3. 최종 결과가 정제된 텍스트인지 검증
 
+        // Verify
         verify(mockYtDlpExecutor).executeAndGetJson(testVideoId);
         verify(mockYtDlpExecutor).executeAndSaveToFile(eq(testVideoId), eq("ko"), anyString());
         verify(mockFileManager).readFileContent(any(Path.class));
+        verify(mockSubtitleProcessor).process(rawSubtitleText); // <-- 4. processor가 호출되었는지 검증
         verify(mockFileManager).deleteFile(any(Path.class));
         verify(mockJobRepository, times(1)).updateJob(eq(testJobId), eq(JobStatusDto.JobStatus.SUBTITLE_EXTRACTING), anyString());
-        verify(mockJobRepository).updateJob(eq(testJobId), eq(JobStatusDto.JobStatus.SUBTITLE_EXTRACTION_COMPLETED), anyString());
+        verify(mockJobRepository).updateJob(eq(testJobId), eq(JobStatusDto.JobStatus.SUBTITLE_EXTRACTION_COMPLETED), eq(processedText)); // <-- 5. 최종 결과로 상태가 업데이트 되었는지 검증
     }
 
     @Test
