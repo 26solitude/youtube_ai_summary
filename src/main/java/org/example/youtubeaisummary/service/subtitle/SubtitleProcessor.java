@@ -2,7 +2,6 @@ package org.example.youtubeaisummary.service.subtitle;
 
 import org.springframework.stereotype.Component;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -10,8 +9,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class SubtitleProcessor {
-
-    public record ProcessedSentence(String startTime, String sentence) {}
 
     // 문장을 나누는 최대 길이 (이 값을 조절하여 결과물 튜닝 가능)
     private static final int MAX_SENTENCE_LENGTH = 200;
@@ -109,5 +106,8 @@ public class SubtitleProcessor {
             }
         }
         return textBuilder.toString().trim();
+    }
+
+    public record ProcessedSentence(String startTime, String sentence) {
     }
 }

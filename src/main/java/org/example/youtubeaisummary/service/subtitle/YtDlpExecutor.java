@@ -105,7 +105,7 @@ public class YtDlpExecutor {
     }
 
     private void addCookieToCommandIfEnabled(List<String> command) {
-        if(cookieFilePath != null && !cookieFilePath.isEmpty()){
+        if (cookieFilePath != null && !cookieFilePath.isEmpty()) {
             command.add("--cookies");
             command.add(cookieFilePath);
             log.info("쿠키 파일을 사용하여 yt-dlp를 실행합니다: {}", cookieFilePath);
