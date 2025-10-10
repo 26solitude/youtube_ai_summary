@@ -31,30 +31,32 @@ public class JobController {
     @PostMapping("/subtitles")
     public ResponseEntity<?> requestSubtitleProcessing(@RequestParam("url") YoutubeVideo video) {
         String jobId = video.getVideoId();
-        Optional<JobStatusDto> jobOpt = jobRepository.getJobStatus(jobId);
 
-        // 완료된 작업: 즉시 결과 반환
-        if (jobOpt.isPresent() && jobOpt.get().status() == JobStatusDto.JobStatus.COMPLETED) {
-            return ResponseEntity.ok(jobOpt.get());
-        }
-
-        // 실패한 작업: 재시도 로직 실행
-        if (jobOpt.isPresent() && jobOpt.get().status() == JobStatusDto.JobStatus.FAILED) {
-            // 실패한 경우, 중복 실행 걱정 없이 바로 재시도
-            orchestrationService.processYoutubeVideo(jobId, video);
-            return new ResponseEntity<>(new JobResponseDto(jobId), HttpStatus.ACCEPTED);
-        }
-
-        // 신규 작업: 경쟁 상태를 방지하며 단 한번만 서비스 호출
+        // 1. 먼저 작업 생성을 시도 (Optimistic Approach)
         if (jobRepository.createJobIfAbsent(jobId)) {
-            // createJobIfAbsent가 true를 반환할 때, 즉 여러 스레드 중
-            // 최초로 작업을 등록하는 데 성공한 단 하나의 스레드만 이 블록을 실행
+            // 성공: 새로운 작업이므로 즉시 서비스 호출
             orchestrationService.processYoutubeVideo(jobId, video);
+        } else {
+            // 실패: 이미 작업이 존재함. 상태를 한 번만 조회하여 분기 처리
+            Optional<JobStatusDto> jobOpt = jobRepository.getJobStatus(jobId);
+
+            if (jobOpt.isPresent()) {
+                JobStatusDto statusDto = jobOpt.get();
+                if (statusDto.status() == JobStatusDto.JobStatus.COMPLETED) {
+                    // 완료된 작업: 즉시 결과 반환
+                    return ResponseEntity.ok(statusDto);
+                }
+                if (statusDto.status() == JobStatusDto.JobStatus.FAILED) {
+                    // 실패한 작업: 재시도 로직 실행
+                    orchestrationService.processYoutubeVideo(jobId, video);
+                }
+                // PENDING 또는 다른 진행중인 상태는 아무것도 하지 않고 아래의 ACCEPTED를 반환
+            }
         }
 
-        // 진행 중이거나, 방금 신규/실패 처리가 시작된 모든 경우
-        // 클라이언트에게는 작업이 정상적으로 접수되었음을 알립니다.
+        // 신규 요청이든, 진행 중인 요청이든, 재시도 요청이든 모두 ACCEPTED 응답
         return new ResponseEntity<>(new JobResponseDto(jobId), HttpStatus.ACCEPTED);
+
     }
 
     @GetMapping(value = "/subtitles/stream/{jobId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
