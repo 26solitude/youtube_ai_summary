@@ -95,6 +95,7 @@ public class AIService {
 
         String combinedSummaries = partialSummaryFutures.stream().map(CompletableFuture::join).collect(Collectors.joining("\n\n"));
 
+        jobManager.updateJobProgress(jobId, JobStatusDto.JobStatus.AI_SUMMARIZING_FINAL, "최종 요약을 생성 중입니다...");
         return openAiClient.getFinalSummaryFromSummaries(combinedSummaries);
     }
 

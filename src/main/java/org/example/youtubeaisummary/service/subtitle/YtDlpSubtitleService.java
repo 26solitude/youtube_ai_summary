@@ -6,8 +6,6 @@ import org.example.youtubeaisummary.dto.JobStatusDto;
 import org.example.youtubeaisummary.exception.subtitle.NoSubtitlesFoundException;
 import org.example.youtubeaisummary.exception.subtitle.YoutubeApiException;
 import org.example.youtubeaisummary.vo.YoutubeVideo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static java.lang.Math.min;
+
 @Service("ytDlp")
 public class YtDlpSubtitleService extends AbstractSubtitleService {
 
-    private static final Logger logger = LoggerFactory.getLogger(YtDlpSubtitleService.class);
 
     // 역할에 따라 분리된 객체들을 주입받습니다.
     private final YtDlpExecutor ytDlpExecutor;
@@ -61,8 +60,7 @@ public class YtDlpSubtitleService extends AbstractSubtitleService {
             String cleanedText = subtitleProcessor.process(rawSubtitle);
 
             // 5. 성공 처리
-            updateJobProgress(jobId, JobStatusDto.JobStatus.SUBTITLE_EXTRACTION_COMPLETED, cleanedText);
-            logger.info("Job ID: {}: 자막 추출 및 정제 완료.", jobId);
+            updateJobProgress(jobId, JobStatusDto.JobStatus.SUBTITLE_EXTRACTION_COMPLETED, cleanedText.substring(0, min(cleanedText.length(), 200)));
             return CompletableFuture.completedFuture(cleanedText);
 
         } catch (Exception e) {
@@ -84,17 +82,13 @@ public class YtDlpSubtitleService extends AbstractSubtitleService {
         automaticCaptions.fieldNames().forEachRemaining(availableLangs::add);
 
         if ("ko".equals(targetLang) && availableLangs.contains("ko")) {
-            logger.info("1순위: 영상 기본 언어가 한국어('ko')이므로 한국어 자막을 선택합니다.");
             return "ko";
         }
         if (availableLangs.contains("en")) {
-            logger.info("2순위: 영어('en') 자막을 기본으로 선택합니다.");
             return "en";
         }
         if (!availableLangs.isEmpty()) {
-            String fallbackLang = availableLangs.get(0);
-            logger.info("3순위: 우선순위 언어가 없어 사용 가능한 첫 번째 언어 '{}'를 선택합니다.", fallbackLang);
-            return fallbackLang;
+            return availableLangs.getFirst();
         }
         throw new NoSubtitlesFoundException("처리 가능한 언어의 자동 생성 자막을 찾을 수 없습니다.");
     }
