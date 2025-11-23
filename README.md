@@ -25,15 +25,14 @@
 
 #### **A. Async Job Processing (Business Logic)**
 
-![Image](https://github.com/user-attachments/assets/f141fcca-f543-4099-befb-8e553ad74a6a)
-
+![Image](https://github.com/user-attachments/assets/e612b02b-4ad8-4a0b-9162-2168e81321d4)
 
 요청이 들어오면 즉시 응답(`202 Accepted`)을 반환하고, 백그라운드에서 **I/O 작업(자막 추출)** 과 **AI 작업(요약)** 이 스레드 풀을 넘나들며 수행됩니다. 텍스트 길이에 따라 **Map-Reduce** 전략이 동적으로 적용되는 흐름을 확인할 수 있습니다.
 
 
 #### **B. Real-time Notification (SSE Flow)**
 
-![Image](https://github.com/user-attachments/assets/e612b02b-4ad8-4a0b-9162-2168e81321d4)
+![Image](https://github.com/user-attachments/assets/f141fcca-f543-4099-befb-8e553ad74a6a)
 
 긴 작업 시간 동안 사용자가 이탈하지 않도록, 작업의 진행 상태(Progress)를 **실시간 이벤트 스트림**으로 전달하는 UX 중심의 흐름입니다.
 
