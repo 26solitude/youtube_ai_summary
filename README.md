@@ -8,6 +8,9 @@
 ## 📐 Architecture
 
 ### 1. System Overview
+
+![[Pasted image 20251123212542.png]]
+
 시스템은 **트래픽 처리(Runtime)** 와 **운영 관리(Operations)** 의 역할이 명확히 분리된 구조를 가집니다.
 
 - **Runtime Flow (실선):** 사용자의 요청을 처리하는 핵심 비즈니스 로직입니다. Nginx를 통해 **SSE(Server-Sent Events)** 스트림을 구독하여, 자막 추출부터 AI 요약까지의 전 과정을 실시간으로 전달받습니다.
@@ -21,10 +24,14 @@
 
 #### **A. Async Job Processing (Business Logic)**
 
+![[Mermaid Chart - Create complex, visual diagrams with text.-2025-11-23-123131.svg]]
+
 요청이 들어오면 즉시 응답(`202 Accepted`)을 반환하고, 백그라운드에서 **I/O 작업(자막 추출)** 과 **AI 작업(요약)** 이 스레드 풀을 넘나들며 수행됩니다. 텍스트 길이에 따라 **Map-Reduce** 전략이 동적으로 적용되는 흐름을 확인할 수 있습니다.
 
 
 #### **B. Real-time Notification (SSE Flow)**
+
+![[Mermaid Chart - Create complex, visual diagrams with text.-2025-11-23-123146.svg]]
 
 긴 작업 시간 동안 사용자가 이탈하지 않도록, 작업의 진행 상태(Progress)를 **실시간 이벤트 스트림**으로 전달하는 UX 중심의 흐름입니다.
 
